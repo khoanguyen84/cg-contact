@@ -11,11 +11,11 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path='/' element={<ContactList />} />
-        <Route path='/contact/list' element={<ContactList />} />
-        <Route path='/contact/add' element={<AddContact />} />
-        <Route path='/contact/view' element={<ViewContact />} />
-        <Route path='/contact/edit' element={<EditContact />} />
+        <Route path='/cg-contact' element={<ContactList />} />
+        <Route path='/cg-contact/contact/list' element={<ContactList />} />
+        <Route path='/cg-contact/contact/add' element={<AddContact />} />
+        <Route path='/cg-contact/contact/view' element={<ViewContact />} />
+        <Route path='/cg-contact/contact/edit' element={<EditContact />} />
       </Routes>
     </>
   );

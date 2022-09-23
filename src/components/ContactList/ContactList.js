@@ -83,7 +83,7 @@ function ContactList() {
                 <div className="container">
                     <div className="d-flex align-items-center">
                         <h3 className="fw-bolder">Contact Manage</h3>
-                        <Link to={"/contact/add"} className="btn btn-primary btn-sm ms-2">
+                        <Link to={"/cg-contact/contact/add"} className="btn btn-primary btn-sm ms-2">
                             <i className="fa fa-plus me-2"></i>
                             New
                         </Link>

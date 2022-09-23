@@ -4,7 +4,7 @@ function Navbar() {
     return (
         <nav className="navbar navbar-dark bg-dark">
             <div className="container">
-                <Link className="navbar-brand" to={"/contact/list"} >
+                <Link className="navbar-brand" to={"/cg-contact/contact/list"} >
                     <i className="fa fa-phone-flip text-warning"></i>
                     <span className="text-primary fw-bolder mx-2">CodeGym</span>
                     Contact
