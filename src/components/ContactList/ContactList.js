@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import Spinner from './../Spinner/Spinner';
 import ContactService from './../../services/contactService';
+import { toast } from 'react-toastify';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 function ContactList() {
     const [state, setState] = useState({
         loading: false,
@@ -33,27 +36,40 @@ function ContactList() {
     }, [])
 
     const handleRemoveContact = (contactId) => {
-        let confirm = window.confirm("Confirm to remove?");
-        if (confirm) {
-            try {
-                async function removeData() {
-                    setState({ ...state, loading: true });
-                    let deleteResult = await ContactService.deleteContact(contactId);
-                    let contactRes = await ContactService.getContacts();
-                    setState({
-                        ...state,
-                        contacts: contactRes.data
-                    })
+        confirmAlert({
+            title: 'Confirm to remove',
+            message: 'Are you sure to do this?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => {
+                        try {
+                            async function removeData() {
+                                setState({ ...state, loading: true });
+                                let deleteResult = await ContactService.deleteContact(contactId);
+                                let contactRes = await ContactService.getContacts();
+                                setState({
+                                    ...state,
+                                    contacts: contactRes.data
+                                })
+                                toast.success("Contact removed success.");
+                            }
+                            removeData();
+                        } catch (error) {
+                            toast.error(error.message);
+                            setState({
+                                ...state,
+                                loading: false,
+                                errorMessage: error.message
+                            });
+                        }
+                    }
+                },
+                {
+                    label: 'No'
                 }
-                removeData();
-            } catch (error) {
-                setState({
-                    ...state,
-                    loading: false,
-                    errorMessage: error.message
-                });
-            }
-        }
+            ]
+        });
     }
 
     const handleSearch = (e) => {
@@ -127,7 +143,7 @@ function ContactList() {
                                                     </div>
                                                     <div className="col-1">
                                                         <div className="d-flex flex-column align-items-center justify-content-between">
-                                                            <Link className="btn btn-warning btn-sm"><i className="fa fa-eye"></i></Link>
+                                                            <Link to={`/cg-contact/contact/view/${contact.id}`} className="btn btn-warning btn-sm"><i className="fa fa-eye"></i></Link>
                                                             <Link className="btn btn-primary btn-sm my-2"><i className="fa fa-edit"></i></Link>
                                                             <button className="btn btn-danger btn-sm"
                                                                 onClick={() => handleRemoveContact(contact.id)}

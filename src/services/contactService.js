@@ -6,6 +6,14 @@ class ContactService{
         return axios.get(CONTACT_URL)
     }
 
+    static getContact(contactId){
+        return axios.get(`${CONTACT_URL}/${contactId}`)
+    }
+
+    static createContact(contact){
+        return axios.post(CONTACT_URL, contact);
+    }
+
     static deleteContact(contactId){
         return axios.delete(`${CONTACT_URL}/${contactId}`)
     }

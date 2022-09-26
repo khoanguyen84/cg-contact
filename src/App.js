@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import ContactList from './components/ContactList/ContactList';
@@ -9,12 +11,13 @@ import EditContact from './components/EditContact/EditContact';
 function App() {
   return (
     <>
+      <ToastContainer autoClose={2000}/>
       <Navbar />
       <Routes>
         <Route path='/cg-contact' element={<ContactList />} />
         <Route path='/cg-contact/contact/list' element={<ContactList />} />
         <Route path='/cg-contact/contact/add' element={<AddContact />} />
-        <Route path='/cg-contact/contact/view' element={<ViewContact />} />
+        <Route path='/cg-contact/contact/view/:contactId' element={<ViewContact />} />
         <Route path='/cg-contact/contact/edit' element={<EditContact />} />
       </Routes>
     </>
