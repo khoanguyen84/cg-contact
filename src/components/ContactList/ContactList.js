@@ -5,6 +5,7 @@ import ContactService from './../../services/contactService';
 import { toast } from 'react-toastify';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import FileService from './../../services/FileService';
 function ContactList() {
     const [state, setState] = useState({
         loading: false,
@@ -35,7 +36,7 @@ function ContactList() {
         }
     }, [])
 
-    const handleRemoveContact = (contactId) => {
+    const handleRemoveContact = (contact) => {
         confirmAlert({
             title: 'Confirm to remove',
             message: 'Are you sure to do this?',
@@ -46,8 +47,9 @@ function ContactList() {
                         try {
                             async function removeData() {
                                 setState({ ...state, loading: true });
-                                let deleteResult = await ContactService.deleteContact(contactId);
+                                let deleteResult = await ContactService.deleteContact(contact.id);
                                 let contactRes = await ContactService.getContacts();
+                                let destroyResult = await FileService.destroy(contact.photoUrl)
                                 setState({
                                     ...state,
                                     contacts: contactRes.data
@@ -74,7 +76,7 @@ function ContactList() {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setState({...state, loading: true})
+        setState({ ...state, loading: true })
         async function getData() {
             let contactRes = await ContactService.getContacts();
             setState({
@@ -130,8 +132,8 @@ function ContactList() {
                     <div className="row">
                         {
                             loading ? <Spinner /> : (
-                                contacts.map(contact => (
-                                    <div className="col-6 mb-4">
+                                contacts.length > 0 && contacts.map(contact => (
+                                    <div key={contact.id} className="col-6 mb-4">
                                         <div className="card">
                                             <div className="card-body">
                                                 <div className="row align-items-center">
@@ -156,7 +158,7 @@ function ContactList() {
                                                             <Link to={`/cg-contact/contact/view/${contact.id}`} className="btn btn-warning btn-sm"><i className="fa fa-eye"></i></Link>
                                                             <Link to={`/cg-contact/contact/edit/${contact.id}`} className="btn btn-primary btn-sm my-2"><i className="fa fa-edit"></i></Link>
                                                             <button className="btn btn-danger btn-sm"
-                                                                onClick={() => handleRemoveContact(contact.id)}
+                                                                onClick={() => handleRemoveContact(contact)}
                                                             >
                                                                 <i className="fa fa-trash"></i></button>
                                                         </div>

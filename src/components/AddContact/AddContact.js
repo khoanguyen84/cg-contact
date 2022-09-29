@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GroupService from './../../services/groupService';
 import ContactService from './../../services/contactService';
@@ -9,21 +9,31 @@ import axios from 'axios';
 import FileService from './../../services/FileService';
 
 function AddContact() {
+    const avatar = useRef();
     const [state, setState] = useState({
         loading: false,
+        contact: {
+            name: '',
+            photoUrl: '',
+            mobile: '',
+            email: '',
+            company: '',
+            title: '',
+            groupId: 0
+        },
         groups: [],
         errorMessage: ''
     })
 
-    const [contact, setContact] = useState({
-        name: '',
-        photoUrl: '',
-        mobile: '',
-        email: '',
-        company: '',
-        title: '',
-        groupId: 0
-    })
+    // const [contact, setContact] = useState({
+    //     name: '',
+    //     photoUrl: '',
+    //     mobile: '',
+    //     email: '',
+    //     company: '',
+    //     title: '',
+    //     groupId: 0
+    // })
 
     const [select, setSelect] = useState({
         uploading: false,
@@ -51,12 +61,24 @@ function AddContact() {
                 errorMessage: error.message
             })
         }
+        // cleanup function
+        return () => {
+            if (contact.photoUrl) {
+                async function clearAvatar() {
+                    await FileService.destroy(contact.photoUrl)
+                }
+                clearAvatar();
+            }
+        }
     }, [])
 
     const handleInputValue = (e) => {
-        setContact({
-            ...contact,
-            [e.target.name]: e.target.value
+        setState({
+            ...state,
+            contact: {
+                ...contact,
+                [e.target.name]: e.target.value
+            }
         })
     }
     const handleSubmit = (e) => {
@@ -84,11 +106,8 @@ function AddContact() {
 
     const changeAvatar = (e) => {
         let select_file = e.target.files[0];
-        let fakeAvatarUrl = URL.createObjectURL(select_file)
-        setContact({
-            ...contact,
-            photoUrl: fakeAvatarUrl
-        })
+        let fakeAvatarUrl = URL.createObjectURL(select_file);
+        contact.photoUrl = fakeAvatarUrl
         setSelect({
             ...select,
             file: select_file
@@ -96,16 +115,24 @@ function AddContact() {
     }
 
     const handleUpload = () => {
-        async function uploadAvatar() {
-            setSelect({...select, uploading: true})
-            let uploadResult = await FileService.Upload(select.file);
-            contact.photoUrl = uploadResult.data.url
-            setSelect({...select, uploading: false})
-            toast.success("Avatar uploaded succee.")
+        if (select.file) {
+            setSelect({ ...select, uploading: true });
+            async function uploadAvatar() {
+                let uploadResult = await FileService.upload(select.file);
+                contact.photoUrl = uploadResult.data.url;
+                setSelect({
+                    ...select,
+                    uploading: false
+                })
+                toast.success("Avatar uploaded succee.");
+            }
+            uploadAvatar();
+
+        } else {
+            toast.info("Please select an avatar");
         }
-        uploadAvatar();
     }
-    const { loading, groups, errorMessage } = state;
+    const { loading, groups, contact, errorMessage } = state;
     return (
         <>
             <section className='create-contact-info'>
@@ -122,26 +149,26 @@ function AddContact() {
                                 <div className='col-4'>
                                     <form onSubmit={handleSubmit}>
                                         <div className="mb-2">
-                                            <input type="text" className="form-control" placeholder="Name" name="name" onInput={handleInputValue} />
+                                            <input type="text" className="form-control" placeholder="Name" name="name" onInput={handleInputValue} required/>
                                         </div>
                                         {/* <div className="mb-2">
                                             <input type="url" className="form-control" placeholder="Photo URL" name="photoUrl" onInput={handleInputValue} />
                                         </div> */}
                                         <div className="mb-2">
-                                            <input type="tel" className="form-control" placeholder="Mobile" name="mobile" onInput={handleInputValue} />
+                                            <input type="tel" className="form-control" placeholder="Mobile" name="mobile" onInput={handleInputValue} required/>
                                         </div>
                                         <div className="mb-2">
-                                            <input type="email" className="form-control" placeholder="Email" name="email" onInput={handleInputValue} />
+                                            <input type="email" className="form-control" placeholder="Email" name="email" onInput={handleInputValue} required/>
                                         </div>
                                         <div className="mb-2">
-                                            <input type="text" className="form-control" placeholder="Company" name="company" onInput={handleInputValue} />
+                                            <input type="text" className="form-control" placeholder="Company" name="company" onInput={handleInputValue} required/>
                                         </div>
                                         <div className="mb-2">
-                                            <input type="text" className="form-control" placeholder="Title" name="title" onInput={handleInputValue} />
+                                            <input type="text" className="form-control" placeholder="Title" name="title" onInput={handleInputValue} required/>
                                         </div>
                                         <div className="mb-2">
-                                            <select className='form-control' name='groupId' onChange={handleInputValue}>
-                                                <option value={-1} key={-1} disabled selected>Select a Group</option>
+                                            <select className='form-control' name='groupId' value={contact.groupId} onChange={handleInputValue}>
+                                                <option value="0" key="0" disabled >Select a Group</option>
                                                 {
                                                     groups.map((group) => (
                                                         <option value={group.id} key={group.id}>{group.name}</option>
@@ -156,16 +183,20 @@ function AddContact() {
                                     </form>
                                 </div>
                                 <div className='col-4'>
-                                    <div className='d-flex flex-column align-items-center'>
+                                    <div className='d-flex flex-column align-items-center avatar'>
                                         <img className='avatar-lg' src={contact.photoUrl || noAvatar} alt=""
                                             onClick={() => document.querySelector("#fileAvatar").click()}
                                         />
-                                        <input class="form-control d-none" accept='image/*' type="file" id="fileAvatar" onChange={changeAvatar} />
-                                        <button className='btn btn-danger mt-2' onClick={handleUpload}>
-                                            {
-                                                select.uploading ? <span className='spinner-border text-warning'></span> : "Upload"
-                                            }
-                                        </button>
+                                        <span className='select-avatar'>Select an Avatar</span>
+                                        <input className="form-control d-none" accept='image/*' type="file" id="fileAvatar" onChange={changeAvatar} />
+                                        {
+                                            select.uploading ? (
+                                                <button className="btn btn-primary" type="button" disabled>
+                                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                                                    Loading...
+                                                </button>
+                                            ) : <button className='btn btn-primary mt-2' onClick={handleUpload}>Upload</button>
+                                        }
                                     </div>
                                 </div>
                             </div>
