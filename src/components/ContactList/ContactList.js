@@ -74,23 +74,33 @@ function ContactList() {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (keyword) {
+        setState({...state, loading: true})
+        async function getData() {
+            let contactRes = await ContactService.getContacts();
             setState({
                 ...state,
-                contacts: contacts.filter(contact => contact.name.toLowerCase().includes(keyword.toLocaleLowerCase()))
+                contacts: contactRes.data.filter(contact => contact.name.toLowerCase().includes(keyword.toLocaleLowerCase())),
+                loading: false
             })
         }
-        else {
-            async function getData() {
-                let contactRes = await ContactService.getContacts();
-                setState({
-                    ...state,
-                    contacts: contactRes.data,
-                    loading: false
-                })
-            }
-            getData();
-        }
+        getData();
+        // if (keyword) {
+        //     setState({
+        //         ...state,
+        //         contacts: contacts.filter(contact => contact.name.toLowerCase().includes(keyword.toLocaleLowerCase()))
+        //     })
+        // }
+        // else {
+        //     async function getData() {
+        //         let contactRes = await ContactService.getContacts();
+        //         setState({
+        //             ...state,
+        //             contacts: contactRes.data,
+        //             loading: false
+        //         })
+        //     }
+        //     getData();
+        // }
     }
     const { loading, contacts, errorMessage } = state;
     return (
@@ -144,7 +154,7 @@ function ContactList() {
                                                     <div className="col-1">
                                                         <div className="d-flex flex-column align-items-center justify-content-between">
                                                             <Link to={`/cg-contact/contact/view/${contact.id}`} className="btn btn-warning btn-sm"><i className="fa fa-eye"></i></Link>
-                                                            <Link className="btn btn-primary btn-sm my-2"><i className="fa fa-edit"></i></Link>
+                                                            <Link to={`/cg-contact/contact/edit/${contact.id}`} className="btn btn-primary btn-sm my-2"><i className="fa fa-edit"></i></Link>
                                                             <button className="btn btn-danger btn-sm"
                                                                 onClick={() => handleRemoveContact(contact.id)}
                                                             >

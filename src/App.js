@@ -18,7 +18,7 @@ function App() {
         <Route path='/cg-contact/contact/list' element={<ContactList />} />
         <Route path='/cg-contact/contact/add' element={<AddContact />} />
         <Route path='/cg-contact/contact/view/:contactId' element={<ViewContact />} />
-        <Route path='/cg-contact/contact/edit' element={<EditContact />} />
+        <Route path='/cg-contact/contact/edit/:contactId' element={<EditContact />} />
       </Routes>
     </>
   );

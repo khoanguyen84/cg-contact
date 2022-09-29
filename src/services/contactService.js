@@ -14,6 +14,10 @@ class ContactService{
         return axios.post(CONTACT_URL, contact);
     }
 
+    static editContact(contact, contactId){
+        return axios.put(`${CONTACT_URL}/${contactId}`, contact);
+    }
+
     static deleteContact(contactId){
         return axios.delete(`${CONTACT_URL}/${contactId}`)
     }
