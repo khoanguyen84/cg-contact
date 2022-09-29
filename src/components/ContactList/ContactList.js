@@ -136,7 +136,7 @@ function ContactList() {
                                             <div className="card-body">
                                                 <div className="row align-items-center">
                                                     <div className="col-3">
-                                                        <img className="rounded-circle" src={contact.photoUrl} alt="" />
+                                                        <img className="avatar-sm rounded-circle" src={contact.photoUrl} alt="" />
                                                     </div>
                                                     <div className="col-8">
                                                         <ul className="list-group">

@@ -4,6 +4,9 @@ import GroupService from './../../services/groupService';
 import ContactService from './../../services/contactService';
 import Spinner from '../Spinner/Spinner';
 import { toast } from 'react-toastify';
+import noAvatar from '../../asset/images/no-avatar.png';
+import axios from 'axios';
+import FileService from './../../services/FileService';
 
 function AddContact() {
     const [state, setState] = useState({
@@ -20,6 +23,11 @@ function AddContact() {
         company: '',
         title: '',
         groupId: 0
+    })
+
+    const [select, setSelect] = useState({
+        uploading: false,
+        file: ''
     })
 
     const navigate = useNavigate();
@@ -74,6 +82,29 @@ function AddContact() {
         }
     }
 
+    const changeAvatar = (e) => {
+        let select_file = e.target.files[0];
+        let fakeAvatarUrl = URL.createObjectURL(select_file)
+        setContact({
+            ...contact,
+            photoUrl: fakeAvatarUrl
+        })
+        setSelect({
+            ...select,
+            file: select_file
+        })
+    }
+
+    const handleUpload = () => {
+        async function uploadAvatar() {
+            setSelect({...select, uploading: true})
+            let uploadResult = await FileService.Upload(select.file);
+            contact.photoUrl = uploadResult.data.url
+            setSelect({...select, uploading: false})
+            toast.success("Avatar uploaded succee.")
+        }
+        uploadAvatar();
+    }
     const { loading, groups, errorMessage } = state;
     return (
         <>
@@ -93,9 +124,9 @@ function AddContact() {
                                         <div className="mb-2">
                                             <input type="text" className="form-control" placeholder="Name" name="name" onInput={handleInputValue} />
                                         </div>
-                                        <div className="mb-2">
+                                        {/* <div className="mb-2">
                                             <input type="url" className="form-control" placeholder="Photo URL" name="photoUrl" onInput={handleInputValue} />
-                                        </div>
+                                        </div> */}
                                         <div className="mb-2">
                                             <input type="tel" className="form-control" placeholder="Mobile" name="mobile" onInput={handleInputValue} />
                                         </div>
@@ -125,7 +156,17 @@ function AddContact() {
                                     </form>
                                 </div>
                                 <div className='col-4'>
-                                    <img className='img-thumbnail w-100' src={contact.photoUrl} alt="" />
+                                    <div className='d-flex flex-column align-items-center'>
+                                        <img className='avatar-lg' src={contact.photoUrl || noAvatar} alt=""
+                                            onClick={() => document.querySelector("#fileAvatar").click()}
+                                        />
+                                        <input class="form-control d-none" accept='image/*' type="file" id="fileAvatar" onChange={changeAvatar} />
+                                        <button className='btn btn-danger mt-2' onClick={handleUpload}>
+                                            {
+                                                select.uploading ? <span className='spinner-border text-warning'></span> : "Upload"
+                                            }
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
